@@ -13,7 +13,7 @@
 
 What makes Droidspaces unique is its **zero-dependency, native execution** on both Android and Linux. It's statically compiled against musl libc. If your device runs a Linux kernel, Droidspaces runs on it. No Termux, no middlemen, no setup overhead.
 
-- **Tiny footprint:** under 300KB per platform
+- **Tiny footprint:** under 400KB per platform
 - **Truly native:** runs directly on Android and Linux from the same binary
 - **Wide architecture support:** `aarch64`, `armhf`, `x86_64`, `x86`, and `riscv64` as a single static binary
 - **Beautiful Android app:** manage unlimited containers and do everything the CLI can, all from a clean, intuitive GUI
@@ -157,7 +157,7 @@ Unlike traditional chroot, which simply changes the apparent root directory, Dro
 
 Droidspaces is designed to work natively on anything that runs a Linux kernel, including **Android**, **Linux Desktop**, and **minimal environments like Android recovery/ramdisks**. On Android, it handles all kernel quirks, SELinux conflicts, complex networking scenarios, and encryption issues that break other container tools. On Linux Desktop, it works out of the box with no additional configuration needed. On ramdisks, it handles all the quirks like `pivot_root` as well!
 
-The entire runtime is a **single static binary** under 300KB, compiled against musl libc with no external dependencies.
+The entire runtime is a **single static binary** under 400KB, compiled against musl libc with no external dependencies.
 
 ---
 
@@ -252,7 +252,7 @@ The entire runtime is a **single static binary** under 300KB, compiled against m
 | **Root Required** | **Yes** | Yes | Yes | Yes | No |
 | **Termux Required** | **Never. Zero dependencies.** | Yes | Yes | No | Yes |
 | **Setup Complexity** | **Low. Install APK and run.** | High (manual cgroup mounts, manual config changes, manual daemon start) | High (manual cgroup mounts, manual config changes, manual daemon start) | Medium (manual mount script required every boot) | Medium |
-| **Binary Size** | **~300KB per architecture** | 10MB+ | 50MB+ | N/A | ~10MB |
+| **Binary Size** | **~400KB per architecture** | 10MB+ | 50MB+ | N/A | ~10MB |
 | **Dependencies** | **Zero. Single static musl binary.** | Termux + liblxc + templates | Termux + dockerd + containerd + runc | Termux or any shell environment | Termux + proot binary |
 
 ---
