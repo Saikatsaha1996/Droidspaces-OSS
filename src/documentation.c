@@ -426,7 +426,7 @@ static void handle_sigint(int sig) {
   (void)sig;
   if (g_old_tios_ptr)
     tcsetattr(STDIN_FILENO, TCSAFLUSH, g_old_tios_ptr);
-  printf("\033[?25h");                            /* SHOW_CURSOR */
+  printf("\033[?25h"); /* SHOW_CURSOR */
   if (write(STDOUT_FILENO, "\033[2J\033[H", 7) < 0) {
     /* ignore */
   }
