@@ -48,7 +48,7 @@ void ds_monitor_run(struct ds_config *cfg, int sync_pipe_write) {
    * unshare(CLONE_NEWPID) can only be called once per process. Instead,
    * each boot/reboot cycle forks an intermediate that creates a fresh
    * PID namespace. */
-  int ns_flags = CLONE_NEWUTS | CLONE_NEWIPC;
+  int ns_flags = CLONE_NEWUTS //| CLONE_NEWIPC;
 
   /* Adaptive Cgroup Namespace (introduced in Linux 4.6).
    *
