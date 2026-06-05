@@ -22,8 +22,7 @@ jobs:
   build:
     name: Build Backend & Android App
     runs-on: ubuntu-latest
-    env:
-      HAS_TELEGRAM: ${{ secrets.API_ID != '' && secrets.API_HASH != '' }}
+
     steps:
     - uses: actions/checkout@v4
 
@@ -75,8 +74,9 @@ jobs:
     - name: Decode Keystore
       env:
         RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE }}
-      if: "${{ env.RELEASE_KEYSTORE != '' }}"
-      run: echo "${{ env.RELEASE_KEYSTORE }}" | base64 -d > droidspaces.keystore
+      if: ${{ env.RELEASE_KEYSTORE != '' }}
+      run: |
+        echo "${{ env.RELEASE_KEYSTORE }}" | base64 -d > droidspaces.keystore
 
     - name: Grant execute permission for gradlew
       run: chmod +x Android/gradlew
@@ -107,54 +107,22 @@ jobs:
         DATE=$(date +%Y-%m-%d)
         APK_NAME="Droidspaces-universal-${TAG}-${DATE}.apk"
         TAR_NAME=$(ls droidspaces-v*-*.tar.gz)
+
         mkdir -p dist
-        mv Android/app/build/outputs/apk/release/app-release.apk dist/${APK_NAME}
-        mv ${TAR_NAME} dist/
+
+        mv Android/app/build/outputs/apk/release/app-release.apk \
+          "dist/${APK_NAME}"
+
+        mv "${TAR_NAME}" dist/
+
         echo "APK_FILE=dist/${APK_NAME}" >> $GITHUB_ENV
         echo "TAR_FILE=dist/${TAR_NAME}" >> $GITHUB_ENV
-
-    - name: Generate Telegram Message
-      if: github.event_name != 'pull_request'
-      run: |
-        EVENT_TYPE="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.create_release == 'true' && 'Official Release' || 'Git Push' }}"
-        COMMIT_MSG=$(git log -1 --pretty=format:%s)
-        {
-          echo "TELEGRAM_MESSAGE<<EOF"
-          echo "**Droidspaces Build Successful**"
-          echo ""
-          echo "**Repository:** [${{ github.repository }}](https://github.com/${{ github.repository }})"
-          echo "**Author:** [${{ github.actor }}](https://github.com/${{ github.actor }})"
-          echo "**Event:** $EVENT_TYPE"
-          echo ""
-          echo "**Commit Message:**"
-          echo ""
-          echo "\`\`\`"
-          echo "$COMMIT_MSG"
-          echo "\`\`\`"
-          echo "EOF"
-        } >> "$GITHUB_ENV"
 
     - name: Upload Final Artifacts (APK & Tarball)
       uses: actions/upload-artifact@v4
       with:
         name: droidspaces-artifacts
         path: dist/
-
-    - name: Send Telegram Notification
-      if: |
-        github.event_name != 'pull_request' &&
-        env.HAS_TELEGRAM == 'true'
-      uses: xz-dev/TelegramFileUploader@v1
-      with:
-        to-who: ${{ secrets.TELEGRAM_TO }}
-        message: ${{ env.TELEGRAM_MESSAGE }}
-        files: |
-          ${{ env.APK_FILE }}
-          ${{ env.TAR_FILE }}
-      env:
-        API_ID: ${{ secrets.API_ID }}
-        API_HASH: ${{ secrets.API_HASH }}
-        BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
 
   release:
     name: Create GitHub Release
@@ -167,6 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
     - uses: actions/checkout@v4
       with:
@@ -182,7 +151,6 @@ jobs:
       id: changelog
       run: |
         PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-        echo "Previous tag: $PREV_TAG"
 
         if [ -z "$PREV_TAG" ]; then
           CHANGELOG=$(git log --oneline --pretty=format:"* %s (%h)")
@@ -200,14 +168,14 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ github.event.inputs.tag_name }}
-        name: Droidspaces ${{ github.event.inputs.tag_name || 'Development Build' }}
+        name: Droidspaces ${{ github.event.inputs.tag_name }}
         target_commitish: ${{ github.sha }}
         body: |
           ## What's Changed
           ${{ steps.changelog.outputs.notes }}
 
           ---
-          **Automated Release by Droidspaces CI**
+          Automated Release by Droidspaces CI
         files: |
           release-assets/*.apk
           release-assets/*.tar.gz
